@@ -1,12 +1,12 @@
 packetspammer: packetspammer.c
-	gcc  -Wall radiotap.c packetspammer.c -o packetspammer -lpcap
+	 ${CC} -Wall radiotap.c packetspammer.c -o packetspammer -lpcap
 
 clean:
 	rm -f packetspammer *~
 
 send:	packetspammer
-	scp packetspammer root@192.168.0.60:/usr/local/bin
-#	scp packetspammer root@192.168.0.99:/usr/local/bin
+	scp packetspammer root@10.0.1.193:/usr/local/bin
+	scp packetspammer root@10.0.1.192:/usr/local/bin
 
 install:
 	mkdir -p $(DESTDIR)/usr/bin
