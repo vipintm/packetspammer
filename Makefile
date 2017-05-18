@@ -5,8 +5,8 @@ clean:
 	rm -f packetspammer *~
 
 send:	packetspammer
-	scp packetspammer root@10.0.1.193:/usr/local/bin
-	scp packetspammer root@10.0.1.192:/usr/local/bin
+	scp packetspammer root@10.0.1.193:/media/realroot/
+	scp packetspammer root@10.0.1.192:/media/realroot/
 
 install:
 	mkdir -p $(DESTDIR)/usr/bin
