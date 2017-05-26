@@ -20,6 +20,7 @@
 
 #include "packetspammer.h"
 #include "radiotap.h"
+#include "vectors.h"
 
 /* wifi bitrate to use in 500kHz units */
 
@@ -40,32 +41,6 @@ static const u8 u8aRatesToUse[] = {
 
 /* this is the template radiotap header we send packets out with */
 
-static const u8 u8aRadiotapHeader[] = {
-
-	0x00, 0x00, // <-- radiotap version
-	0x19, 0x00, // <- radiotap header length
-	0x6f, 0x08, 0x00, 0x00, // <-- bitmap
-	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, // <-- timestamp
-	0x00, // <-- flags (Offset +0x10)
-	0x6c, // <-- rate (0ffset +0x11)
-	0x71, 0x09, 0xc0, 0x00, // <-- channel
-	0xde, // <-- antsignal
-	0x00, // <-- antnoise
-	0x01, // <-- antenna
-
-};
-#define	OFFSET_FLAGS 0x10
-#define	OFFSET_RATE 0x11
-
-/* Penumbra IEEE80211 header */
-
-static const u8 u8aIeeeHeader[] = {
-	0x08, 0x01, 0x00, 0x00,
-	0xFE, 0xFE, 0xFE, 0xFE, 0xFE, 0xFE,
-	0x13, 0x22, 0x33, 0x44, 0x55, 0x66,
-	0x13, 0x22, 0x33, 0x44, 0x55, 0x66,
-	0x10, 0x86,
-};
 
 // this is where we store a summary of the
 // information from the radiotap header
@@ -139,6 +114,7 @@ void
 usage(void)
 {
 	printf(
+		"(c)2010 Steve deRosier <steve@cozybit.com>\n"
 	    "(c)2006-2007 Andy Green <andy@warmcat.com>  Licensed under GPL2\n"
 	    "\n"
 	    "Usage: packetspammer [options] <interface>\n\nOptions\n"
@@ -161,16 +137,15 @@ main(int argc, char *argv[])
 {
 	u8 u8aSendBuffer[500];
 	char szErrbuf[PCAP_ERRBUF_SIZE];
-	int nCaptureHeaderLength = 0; 
-	int n80211HeaderLength = 0;
-	int  nLinkEncap = 0;
-	int nOrdinal = 0, r, nDelay = 100000;
-	int nRateIndex = 0, retval, bytes;
+	int nCaptureHeaderLength = 0, n80211HeaderLength = 0, nLinkEncap = 0;
+	int r, nDelay = 100000;
 	pcap_t *ppcap = NULL;
 	struct bpf_program bpfprogram;
 	char * szProgram = "", fBrokenSocket = 0;
-	u16 u16HeaderLen;
 	char szHostname[PATH_MAX];
+	int VectorIndex = 2;
+	tvector Vector;
+	int nVector = -1;
 
 	if (gethostname(szHostname, sizeof (szHostname) - 1)) {
 		perror("unable to get hostname");
@@ -178,17 +153,19 @@ main(int argc, char *argv[])
 	szHostname[sizeof (szHostname) - 1] = '\0';
 
 
-	printf("Packetspammer (c)2007 Andy Green <andy@warmcat.com>  GPL2\n");
+	printf("Packetvector (c)2010 Steve deRosier <steve@cozybit.com>  GPL2\n");
+	printf(" based on Packetspammer (c)2007 Andy Green <andy@warmcat.com>  GPL2\n");
 
 	while (1) {
 		int nOptionIndex;
 		static const struct option optiona[] = {
+			{ "vector", required_argument, NULL, 'v' },
 			{ "delay", required_argument, NULL, 'd' },
 			{ "fcs", no_argument, &flagMarkWithFCS, 1 },
 			{ "help", no_argument, &flagHelp, 1 },
 			{ 0, 0, 0, 0 }
 		};
-		int c = getopt_long(argc, argv, "d:hf",
+		int c = getopt_long(argc, argv, "v:d:hf",
 			optiona, &nOptionIndex);
 
 		if (c == -1)
@@ -199,6 +176,10 @@ main(int argc, char *argv[])
 
 		case 'h': // help
 			usage();
+
+		case 'v': // delay
+			nVector= atoi(optarg);
+			break;
 
 		case 'd': // delay
 			nDelay = atoi(optarg);
@@ -272,119 +253,30 @@ main(int argc, char *argv[])
 
 	printf("   (delay between packets %dus)\n", nDelay);
 
-	memset(u8aSendBuffer, 0, sizeof (u8aSendBuffer));
-
 	while (!fBrokenSocket) {
-		u8 * pu8 = u8aSendBuffer;
-		struct pcap_pkthdr * ppcapPacketHeader = NULL;
-		struct ieee80211_radiotap_iterator rti;
-		PENUMBRA_RADIOTAP_DATA prd;
-		u8 * pu8Payload = u8aSendBuffer;
-		int n, nRate;
-
-		// receive
-
-		retval = pcap_next_ex(ppcap, &ppcapPacketHeader,
-		    (const u_char**)&pu8Payload);
-
-		if (retval < 0) {
-			fBrokenSocket = 1;
-			continue;
-		}
-
-		if (retval != 1)
-			goto do_tx;
-
-		u16HeaderLen = (pu8Payload[2] + (pu8Payload[3] << 8));
-
-		printf("rtap: ");
-		Dump(pu8Payload, u16HeaderLen);
-
-		if (ppcapPacketHeader->len <
-		    (u16HeaderLen + n80211HeaderLength))
-			continue;
-
-		bytes = ppcapPacketHeader->len -
-			(u16HeaderLen + n80211HeaderLength);
-		if (bytes < 0)
-			continue;
-
-		if (ieee80211_radiotap_iterator_init(&rti,
-		    (struct ieee80211_radiotap_header *)pu8Payload,
-		    bytes) < 0)
-			continue;
-
-		while ((n = ieee80211_radiotap_iterator_next(&rti)) == 0) {
-
-			switch (rti.this_arg_index) {
-			case IEEE80211_RADIOTAP_RATE:
-				prd.m_nRate = (*rti.this_arg);
-				break;
-
-			case IEEE80211_RADIOTAP_CHANNEL:
-				prd.m_nChannel =
-				    le16_to_cpu(*((u16 *)rti.this_arg));
-				prd.m_nChannelFlags =
-				    le16_to_cpu(*((u16 *)(rti.this_arg + 2)));
-				break;
-
-			case IEEE80211_RADIOTAP_ANTENNA:
-				prd.m_nAntenna = (*rti.this_arg) + 1;
-				break;
-
-			case IEEE80211_RADIOTAP_FLAGS:
-				prd.m_nRadiotapFlags = *rti.this_arg;
-				break;
-
-			}
-		}
-
-		pu8Payload += u16HeaderLen + n80211HeaderLength;
-
-		if (prd.m_nRadiotapFlags & IEEE80211_RADIOTAP_F_FCS)
-			bytes -= 4;
-
-		printf("RX: Rate: %2d.%dMbps, Freq: %d.%dGHz, "
-		    "Ant: %d, Flags: 0x%X\n",
-		    prd.m_nRate / 2, 5 * (prd.m_nRate & 1),
-		    prd.m_nChannel / 1000,
-		    prd.m_nChannel - ((prd.m_nChannel / 1000) * 1000),
-		    prd.m_nAntenna,
-		    prd.m_nRadiotapFlags);
-
-		Dump(pu8Payload, bytes);
-
-	do_tx:
+		memset(u8aSendBuffer, 0, sizeof (u8aSendBuffer));
 
 		// transmit
+		if (nVector < 0) {
+			Vector = Vectors[VectorIndex++];
+			if (VectorIndex >= NUM_VECTORS)
+				VectorIndex = 0;
+		} else if(nVector < NUM_VECTORS) {
+			Vector = Vectors[nVector];
+		} else {
+			printf("Error: Vector %d is more than number of vectors available.\n", nVector);
+			printf("  Choose a number between 0 and %d.\n", NUM_VECTORS-1);
+			exit(1);
+		}
 
-		memcpy(u8aSendBuffer, u8aRadiotapHeader,
-			sizeof (u8aRadiotapHeader));
-		if (flagMarkWithFCS)
-			pu8[OFFSET_FLAGS] |= IEEE80211_RADIOTAP_F_FCS;
-		nRate = pu8[OFFSET_RATE] = u8aRatesToUse[nRateIndex++];
-		if (nRateIndex >= sizeof (u8aRatesToUse))
-			nRateIndex = 0;
-		pu8 += sizeof (u8aRadiotapHeader);
-
-		memcpy(pu8, u8aIeeeHeader, sizeof (u8aIeeeHeader));
-		pu8 += sizeof (u8aIeeeHeader);
-
-		pu8 += sprintf((char *)pu8,
-		    "Packetspammer %02d"
-		    "broadcast packet"
-		    "#%05d -- :-D --%s ----",
-		    nRate/2, nOrdinal++, szHostname);
-		r = pcap_inject(ppcap, u8aSendBuffer, pu8 - u8aSendBuffer);
-		if (r != (pu8-u8aSendBuffer)) {
+		r = pcap_inject(ppcap, Vector.data, Vector.size);
+		if (r != (Vector.size)) {
 			perror("Trouble injecting packet");
 			return (1);
 		}
 		if (nDelay)
 			usleep(nDelay);
 	}
-
-
 
 	return (0);
 }
