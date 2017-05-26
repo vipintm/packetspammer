@@ -18,6 +18,7 @@
 #include <arpa/inet.h>
 #include <linux/ip.h>
 #include <linux/udp.h>
+#include <unistd.h>
 
 /* Defined in include/linux/ieee80211.h */
 struct ieee80211_hdr {
@@ -124,7 +125,36 @@ const uint8_t ipllc[8] = { 0xaa, 0xaa, 0x03, 0x00, 0x00, 0x00, 0x08, 0x00 };
  */
 uint16_t inet_csum(const void *buf, size_t hdr_len);
 
+int nDelay = 100000;
+char command1[50];
+char command2[50];
+char command3[50];
+char command4[50];
+char command5[50];
+
 int main(void) {
+
+strcpy(command1, "echo -n \"40\" > /sys/class/gpio/unexport");
+strcpy(command2, "echo -n \"40\" > /sys/class/gpio/export");
+strcpy(command3, "echo -n \"out\" > /sys/class/gpio/gpio40/direction");
+strcpy(command4, "echo -n \"1\" > /sys/class/gpio/gpio40/value");
+strcpy(command5, "echo -n \"0\" > /sys/class/gpio/gpio40/value");
+system(command1);
+system(command2);
+system(command3);
+
+system(command4);
+usleep(nDelay);
+usleep(nDelay);
+usleep(nDelay);
+usleep(nDelay);
+usleep(nDelay);
+usleep(nDelay);
+system(command5);
+
+
+while (1)
+{
 
   /* The parts of our packet */
   uint8_t *rt; /* radiotap */
@@ -264,16 +294,25 @@ int main(void) {
   /**
    * Then we send the packet and clean up after ourselves
    */
+  //system(command4);
   if (pcap_sendpacket(ppcap, buf, sz) == 0) {
+    //system(command5);
     pcap_close(ppcap);
-    return 0;
+    //return 0;
+  }
+  else {
+    pcap_perror(ppcap, "Failed to inject packet");
+    pcap_close(ppcap);
   }
 
   /**
    * If something went wrong, let's let our user know
    */
-  pcap_perror(ppcap, "Failed to inject packet");
-  pcap_close(ppcap);
+  //pcap_perror(ppcap, "Failed to inject packet");
+  //pcap_close(ppcap);
+  if (nDelay)
+    usleep(nDelay);
+}
   return 1;
 }
 
