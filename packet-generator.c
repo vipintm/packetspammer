@@ -19,6 +19,7 @@
 #include <linux/ip.h>
 #include <linux/udp.h>
 #include <unistd.h>
+#include <time.h>
 
 /* Defined in include/linux/ieee80211.h */
 struct ieee80211_hdr {
@@ -125,7 +126,7 @@ const uint8_t ipllc[8] = { 0xaa, 0xaa, 0x03, 0x00, 0x00, 0x00, 0x08, 0x00 };
  */
 uint16_t inet_csum(const void *buf, size_t hdr_len);
 
-int nDelay = 100000;
+int nDelay = 1000000;
 char command1[50];
 char command2[50];
 char command3[50];
@@ -152,9 +153,18 @@ usleep(nDelay);
 usleep(nDelay);
 system(command5);
 
+struct timespec send_time;
+struct timespec start_time;
+struct timespec end_time;
+long diffInNanos;
+int packno = 0;
+char buff[100];
 
 while (1)
 {
+
+  clock_gettime(CLOCK_REALTIME, &send_time);
+  strftime(buff, sizeof buff, "%D %T", gmtime(&send_time.tv_sec));
 
   /* The parts of our packet */
   uint8_t *rt; /* radiotap */
@@ -163,6 +173,7 @@ while (1)
   struct iphdr *ip;
   struct udphdr *udp;
   uint8_t *data;
+  uint8_t *stime;
 
   /* Other useful bits */
   uint8_t *buf;
@@ -175,7 +186,7 @@ while (1)
   pcap_t *ppcap;
   
   /* Total buffer size (note the 0 bytes of data and the 4 bytes of FCS */
-  sz = sizeof(u8aRadiotapHeader) + sizeof(struct ieee80211_hdr) + sizeof(ipllc) + sizeof(struct iphdr) + sizeof(struct udphdr) + 0 /* data */ + 4 /* FCS */;
+  sz = sizeof(u8aRadiotapHeader) + sizeof(struct ieee80211_hdr) + sizeof(ipllc) + sizeof(struct iphdr) + sizeof(struct udphdr) + /*0*/ sizeof(struct timespec) + 100 /* data */ + 4 /* FCS */;
   buf = (uint8_t *) malloc(sz);
 
   /* Put our pointers in the right place */
@@ -185,6 +196,12 @@ while (1)
   ip = (struct iphdr *) (llc+sizeof(ipllc));
   udp = (struct udphdr *) (ip+1);
   data = (uint8_t *) (udp+1);
+
+  // copy time in data
+  memcpy(data, &send_time, sizeof(send_time));
+  //  string time
+  stime = (struct timespec *) (data+1);
+  memcpy(stime, buff, 100);
 
   /* The radiotap header has been explained already */
   memcpy(rt, u8aRadiotapHeader, sizeof(u8aRadiotapHeader));
@@ -294,10 +311,23 @@ while (1)
   /**
    * Then we send the packet and clean up after ourselves
    */
-  //system(command4);
+  system(command4);
+  clock_gettime(CLOCK_REALTIME, &start_time);
   if (pcap_sendpacket(ppcap, buf, sz) == 0) {
+    clock_gettime(CLOCK_REALTIME, &end_time);
+    packno++;
     //system(command5);
+    diffInNanos = end_time.tv_nsec - start_time.tv_nsec;
+    strftime(buff, sizeof buff, "%D %T", gmtime(&end_time.tv_sec));
+    printf("Send a packet [%d] at %s.%09ld with %ld ns \n\n",packno, buff, end_time.tv_nsec, diffInNanos);
     pcap_close(ppcap);
+    system(command5);
+
+                if ( packno >= 20 )
+                {
+                        return 0;
+                }
+
     //return 0;
   }
   else {

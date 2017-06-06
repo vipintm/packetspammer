@@ -1,4 +1,13 @@
-all: packetspammer ainject packetvector packet-generator
+all: packetspammer ainject packetvector packet-generator packet_parser using_filters packet-generator-fastgpio
+
+packet-generator-fastgpio : packet-generator-fastgpio.c
+	${CC} -Wall packet-generator-fastgpio.c -o packet-generator-fastgpio -lpcap
+
+using_filters: using_filters.c
+	${CC} -Wall using_filters.c -o using_filters -lpcap
+
+packet_parser: packet_parser.c
+	${CC} -Wall packet_parser.c -o packet_parser -lpcap
 
 packet-generator: packet-generator.c 
 	${CC} -Wall packet-generator.c -o packet-generator -lpcap
@@ -17,10 +26,13 @@ clean:
 	rm -f inject 
 	rm -f packetvector
 	rm -f packet-generator
+	rm -f packet_parser
+	rm -f using_filters
+	rm -f packet-generator-fastgpio
 
 send: 
-	scp packetspammer inject packetvector packet-generator root@10.0.1.193:/media/realroot/
-	scp packetspammer inject packetvector packet-generator root@10.0.1.192:/media/realroot/
+	scp packetspammer inject packetvector packet-generator packet_parser using_filters packet-generator-fastgpio root@10.0.1.193:/media/realroot/
+	scp packetspammer inject packetvector packet-generator packet_parser using_filters packet-generator-fastgpio root@10.0.1.192:/media/realroot/
 
 #install:
 #	mkdir -p $(DESTDIR)/usr/bin

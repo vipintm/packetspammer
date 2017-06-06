@@ -6,6 +6,7 @@
 
 void print_packet_info(const u_char *packet, struct pcap_pkthdr packet_header);
 void my_packet_handler(u_char *args, const struct pcap_pkthdr *header, const u_char *packet);
+void pktdump(const u_char * pu8, int nLength);
 
 int nDelay = 100000;
 char command1[50];
@@ -14,7 +15,14 @@ char command3[50];
 char command4[50];
 char command5[50];
 
-int main(int argc, char **argv) {
+struct timespec start_time;
+struct timespec end_time;
+long diffInNanos;
+int packno = 0;
+char buff[100];
+
+//int main(int argc, char **argv) {
+int main() {
 strcpy(command1, "echo -n \"40\" > /sys/class/gpio/unexport");
 strcpy(command2, "echo -n \"40\" > /sys/class/gpio/export");
 strcpy(command3, "echo -n \"out\" > /sys/class/gpio/gpio40/direction");
@@ -41,6 +49,7 @@ system(command5);
 	struct bpf_program filter;
 	char filter_exp[] = "udp && src 169.254.1.1 && dst 255.255.255.255 && src port 50505 && dst port 50505";
 	bpf_u_int32 subnet_mask, ip;
+	int pktlength =0;
 
 	if (pcap_lookupnet(dev, &ip, &subnet_mask, error_buffer) == -1) {
 		printf("Could not get information for device: %s\n", dev);
@@ -67,13 +76,28 @@ while (1)
 
 	// pcap_next() or pcap_loop() to get packets from device now 
 	// Only packets over port 80 will be returned.
+	clock_gettime(CLOCK_REALTIME, &start_time);
+	printf("Waiting for packet %ld.%ld \n",start_time.tv_sec, start_time.tv_nsec);
 	packet = pcap_next(handle, &packet_header);
  	if (packet == NULL) {
         	printf("No packet found.\n");
 	}
 	else {
+    		clock_gettime(CLOCK_REALTIME, &end_time);
+		packno++;
+    		diffInNanos = end_time.tv_nsec - start_time.tv_nsec;
+		strftime(buff, sizeof buff, "%D %T", gmtime(&end_time.tv_sec));
+    		printf("Got a packet [%d] at %s.%09ld with %ld ns \n\n",packno, buff,end_time.tv_nsec, diffInNanos);
 		system(command4);
 		system(command5);
+		if ( packno >= 20 ) 
+		{
+			return 0;
+		}
+			
+		pktlength = packet_header.len;	
+		printf("Lenght  of packet %d\n", pktlength);
+  		pktdump(packet, pktlength);
 		//print_packet_info(packet, packet_header);
 	}
 }
@@ -91,6 +115,58 @@ while (1)
 }
 
 
+void pktdump(const u_char * pu8, int nLength)
+{
+        char sz[256], szBuf[512], szChar[17], *buf, fFirst = 1;
+        unsigned char baaLast[2][16];
+        unsigned int n, nPos = 0, nStart = 0, nLine = 0, nSameCount = 0;
+
+        buf = szBuf;
+        szChar[0] = '\0';
+
+        for (n = 0; n < nLength; n++) {
+                baaLast[(nLine&1)^1][n&0xf] = pu8[n];
+                if ((pu8[n] < 32) || (pu8[n] >= 0x7f))
+                        szChar[n&0xf] = '.';
+                else
+                        szChar[n&0xf] = pu8[n];
+                szChar[(n&0xf)+1] = '\0';
+                nPos += sprintf(&sz[nPos], "%02X ",
+                        baaLast[(nLine&1)^1][n&0xf]);
+                if ((n&15) != 15)
+                        continue;
+                if ((memcmp(baaLast[0], baaLast[1], 16) == 0) && (!fFirst)) {
+                        nSameCount++;
+                } else {
+                        if (nSameCount)
+                                buf += sprintf(buf, "(repeated %d times)\n",
+                                        nSameCount);
+                        buf += sprintf(buf, "%04x: %s %s\n",
+                                nStart, sz, szChar);
+                        nSameCount = 0;
+                        printf("%s", szBuf);
+                        buf = szBuf;
+                }
+                nPos = 0; nStart = n+1; nLine++;
+                fFirst = 0; sz[0] = '\0'; szChar[0] = '\0';
+        }
+        if (nSameCount)
+                buf += sprintf(buf, "(repeated %d times)\n", nSameCount);
+
+        buf += sprintf(buf, "%04x: %s", nStart, sz);
+        if (n & 0xf) {
+                *buf++ = ' ';
+                while (n & 0xf) {
+                        buf += sprintf(buf, "   ");
+                        n++;
+                }
+        }
+        buf += sprintf(buf, "%s\n", szChar);
+        printf("%s", szBuf);
+}
+
+/*
+
 void print_packet_info(const u_char *packet, struct pcap_pkthdr packet_header) {
     u_char *pointer;
     int address_length;
@@ -102,7 +178,7 @@ void print_packet_info(const u_char *packet, struct pcap_pkthdr packet_header) {
     printf("Packet length %d\n", packet_header.len);
     printf("Packet capture length: %d\n", packet_header.caplen);
 
-    /* What type of ethernet packet */
+    // What type of ethernet packet 
     struct ether_header *ethernet_header;
     ethernet_header = (struct ether_header *) packet;
     if (ntohs(ethernet_header->ether_type) == ETHERTYPE_IP) {
@@ -122,7 +198,7 @@ void print_packet_info(const u_char *packet, struct pcap_pkthdr packet_header) {
         return;
     }
 
-    /* Source address */
+    // Source address 
     address_length = ETHER_ADDR_LEN;
     pointer = ethernet_header->ether_shost;
     printf("Source Address:  ");
@@ -134,7 +210,7 @@ void print_packet_info(const u_char *packet, struct pcap_pkthdr packet_header) {
     } while(--address_length > 0);
     printf("\n");
 
-    /* Destination address */
+    // Destination address 
     pointer = ethernet_header->ether_dhost;
     address_length = ETHER_ADDR_LEN;
     printf("Destination Address:  ");
@@ -147,6 +223,10 @@ void print_packet_info(const u_char *packet, struct pcap_pkthdr packet_header) {
     printf("\n");
 }
 
+*/
+
+/*
+
 void my_packet_handler(
     u_char *args,
     const struct pcap_pkthdr *header,
@@ -154,7 +234,7 @@ void my_packet_handler(
 )
 {
 
-int nDelay = 10;
+//int nDelay = 10;
 char command4[50];
 char command5[50];
 
@@ -168,7 +248,7 @@ system(command5);
 
 
 }
-
+*/
 
 /* Finds the payload of a TCP/IP packet */
 /*
