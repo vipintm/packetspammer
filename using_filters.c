@@ -113,7 +113,7 @@ int main() {
 	uint8_t *rt; /* radiotap */
 	struct ieee80211_hdr *hdr;
 	uint8_t *llc;
-	struct iphdr *ip;
+	struct iphdr *iph;
 	struct udphdr *udp;
 	uint8_t *data;
 	struct timespec *ntime;
@@ -201,8 +201,8 @@ int main() {
 			rt = (uint8_t *) buf;
 			hdr = (struct ieee80211_hdr *) (rt + sizeof(u8aRadiotapHeader));
 			llc = (uint8_t *) (hdr + 1);
-			ip = (struct iphdr *) (llc + sizeof(ipllc));
-			udp = (struct udphdr *) (ip + 1);
+			iph = (struct iphdr *) (llc + sizeof(ipllc));
+			udp = (struct udphdr *) (iph + 1);
 			// packet number
 			data = (uint8_t *) (udp + 1);
 			// Epoch time
