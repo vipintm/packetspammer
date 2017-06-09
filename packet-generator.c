@@ -219,7 +219,7 @@ int main(void) {
 		// Epoch time
 		ntime = (struct timespec *) (data + 1);
 		// Date and Time in string
-		stime = (uint8_t *) (data + 1);
+		stime = (uint8_t *) (ntime + 1);
 
 
 		/* The radiotap header has been explained already */

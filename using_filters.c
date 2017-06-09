@@ -211,13 +211,13 @@ int main() {
 			// Epoch time
 			ntime = (struct timespec *) (data + 1);
 			// Date and Time in string
-			stime = (uint8_t *) (data + 1);
+			stime = (uint8_t *) (ntime + 1);
 
 			//strftime(buff, sizeof buff, "%D %T", gmtime(&end_time.tv_sec));
 			//printf("Got a packet [%d] at %s.%09ld with %ld ns \n\n",packno, buff,end_time.tv_nsec, diffInNanos);
 			printf("Got a packet [%d] at %ld sec %ld nano sec "
 					"(with %ld.%ld nano sec) pkt : %d \n", packno, end_time.tv_sec,
-					end_time.tv_nsec, diffSec, diffInNanos, &data);
+					end_time.tv_nsec, diffSec, diffInNanos, *data);
 			//system(command4);
 			//system(command5);
 
