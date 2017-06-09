@@ -295,8 +295,8 @@ int main(void) {
 		ip->id = 0;
 		ip->frag_off = htons(0x4000); /* Don't fragment */
 		ip->ttl = 64;
-		ip->tot_len = htons(
-				sizeof(struct iphdr) + sizeof(struct udphdr) + 0 /* data */);
+		ip->tot_len = htons(sizeof(struct iphdr)
+				+ sizeof(struct udphdr) + 0 /* data */);
 		ip->protocol = IPPROTO_UDP;
 		ip->saddr = saddr.sin_addr.s_addr;
 		ip->daddr = daddr.sin_addr.s_addr;
@@ -325,9 +325,9 @@ int main(void) {
 
 		// copy packet number
 		if (packno > max_packno) {
-
 			memcpy(data, &max_packno, sizeof(uint8_t));
-		else
+		}
+		else {
 			memcpy(data, &packno, sizeof(uint8_t));
 		}
 

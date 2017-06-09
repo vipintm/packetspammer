@@ -6,6 +6,9 @@
 #include <unistd.h>
 #include <netinet/in.h>
 #include <netinet/if_ether.h>
+#include <arpa/inet.h>
+#include <linux/ip.h>
+#include <linux/udp.h>
 
 void print_packet_info(const u_char *packet, struct pcap_pkthdr packet_header);
 void my_packet_handler(u_char *args, const struct pcap_pkthdr *header,
@@ -20,13 +23,6 @@ char command3[50];
 char command4[50];
 char command5[50];
 
-struct timespec start_time;
-struct timespec end_time;
-long int diffInNanos;
-long int diffSec;
-int packno = 0;
-char buff[100];
-
 //int main(int argc, char **argv) {
 int main() {
 	strcpy(command1, "echo -n \"40\" > /sys/class/gpio/unexport");
@@ -37,6 +33,29 @@ int main() {
 	system(command1);
 	system(command2);
 	system(command3);
+
+	//
+	struct timespec start_time;
+	struct timespec end_time;
+	long int diffInNanos;
+	long int diffSec;
+	uint8_t packno = 1;
+	uint8_t max_packno = 20;
+	char buff[100];
+
+	/* The parts of our packet */
+	uint8_t *rt; /* radiotap */
+	struct ieee80211_hdr *hdr;
+	uint8_t *llc;
+	struct iphdr *ip;
+	struct udphdr *udp;
+	uint8_t *data;
+	struct timespec *ntime;
+	uint8_t *stime;
+
+	/* Other useful bits */
+	uint8_t *buf;
+	size_t sz;
 
 	// pkt vars
 	char dev[] = "mon0";
@@ -85,7 +104,6 @@ int main() {
 			printf("No packet found.\n");
 		} else {
 			clock_gettime(CLOCK_REALTIME, &end_time);
-			packno++;
 
 			if (end_time.tv_nsec >= start_time.tv_nsec
 					&& end_time.tv_sec >= start_time.tv_sec) {
@@ -104,22 +122,47 @@ int main() {
 				diffInNanos = 0;
 			}
 
+			/* Total buffer size (note the 0 bytes of data and the 4 bytes of FCS */
+			sz = sizeof(u8aRadiotapHeader) + sizeof(struct ieee80211_hdr)
+					+ sizeof(ipllc) + sizeof(struct iphdr)
+					+ sizeof(struct udphdr) + /*0*/sizeof(uint8_t)
+					+ sizeof(struct timespec) + 100 /* data */+ 4 /* FCS */;
+
+			// String time bufer
+			buf = (uint8_t *) malloc(sz);
+
+			/* Put our pointers in the right place */
+			rt = (uint8_t *) buf;
+			hdr = (struct ieee80211_hdr *) (rt + sizeof(u8aRadiotapHeader));
+			llc = (uint8_t *) (hdr + 1);
+			ip = (struct iphdr *) (llc + sizeof(ipllc));
+			udp = (struct udphdr *) (ip + 1);
+			// packet number
+			data = (uint8_t *) (udp + 1);
+			// Epoch time
+			ntime = (struct timespec *) (data + 1);
+			// Date and Time in string
+			stime = (uint8_t *) (data + 1);
+
 			//strftime(buff, sizeof buff, "%D %T", gmtime(&end_time.tv_sec));
 			//printf("Got a packet [%d] at %s.%09ld with %ld ns \n\n",packno, buff,end_time.tv_nsec, diffInNanos);
 			printf("Got a packet [%d] at %ld sec %ld nano sec "
-					"(with %ld.%ld nano sec) \n",
-					packno, end_time.tv_sec, end_time.tv_nsec, diffSec,
-					diffInNanos);
+					"(with %ld.%ld nano sec) \n", packno, end_time.tv_sec,
+					end_time.tv_nsec, diffSec, diffInNanos);
 			//system(command4);
 			//system(command5);
-			if (packno >= 20) {
-				return 0;
-			}
 
 			pktlength = packet_header.len;
 			printf("Lenght  of packet %d\n", pktlength);
 			pktdump(packet, pktlength);
 			//print_packet_info(packet, packet_header);
+			if (packno >= max_packno) {
+				sleep(5);
+				printf("\n Let finish ....\n");
+				pcap_close(handle);
+				return 0;
+			}
+			packno++;
 		}
 	}
 
