@@ -197,6 +197,9 @@ int main() {
 			// String time bufer
 			buf = (uint8_t *) malloc(sz);
 
+			// let copy the packet
+			 memcpy(buf, packet, sz);
+
 			/* Put our pointers in the right place */
 			rt = (uint8_t *) buf;
 			hdr = (struct ieee80211_hdr *) (rt + sizeof(u8aRadiotapHeader));
@@ -213,8 +216,8 @@ int main() {
 			//strftime(buff, sizeof buff, "%D %T", gmtime(&end_time.tv_sec));
 			//printf("Got a packet [%d] at %s.%09ld with %ld ns \n\n",packno, buff,end_time.tv_nsec, diffInNanos);
 			printf("Got a packet [%d] at %ld sec %ld nano sec "
-					"(with %ld.%ld nano sec) \n", packno, end_time.tv_sec,
-					end_time.tv_nsec, diffSec, diffInNanos);
+					"(with %ld.%ld nano sec) pkt : %d \n", packno, end_time.tv_sec,
+					end_time.tv_nsec, diffSec, diffInNanos, data);
 			//system(command4);
 			//system(command5);
 
@@ -222,6 +225,7 @@ int main() {
 			printf("Lenght  of packet %d\n", pktlength);
 			pktdump(packet, pktlength);
 			//print_packet_info(packet, packet_header);
+			free(buf);
 			if (packno >= max_packno) {
 				sleep(5);
 				printf("\n Let finish ....\n");
