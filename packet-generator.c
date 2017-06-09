@@ -126,7 +126,17 @@ const uint8_t ipllc[8] = { 0xaa, 0xaa, 0x03, 0x00, 0x00, 0x00, 0x08, 0x00 };
  */
 uint16_t inet_csum(const void *buf, size_t hdr_len);
 
-int nDelay = 1000000;
+/*
+struct my_pack_info {
+	int no;
+	struct timespec time_ns;
+	struct tm time;
+} __attribute__ ((packed));
+*/
+
+#define BILLION  1000000000L
+//int nDelay = 1000000;
+int nDelay = 0;
 char command1[50];
 char command2[50];
 char command3[50];
@@ -144,27 +154,18 @@ system(command1);
 system(command2);
 system(command3);
 
-system(command4);
-usleep(nDelay);
-usleep(nDelay);
-usleep(nDelay);
-usleep(nDelay);
-usleep(nDelay);
-usleep(nDelay);
-system(command5);
+//system(command4);
+//sleep(5);
+//system(command5);
 
 struct timespec send_time;
 struct timespec start_time;
 struct timespec end_time;
-long diffInNanos;
-int packno = 0;
+long int diffInNanos;
+long int diffSec;
+uint8_t packno = 1;
 char buff[100];
 
-while (1)
-{
-
-  clock_gettime(CLOCK_REALTIME, &send_time);
-  strftime(buff, sizeof buff, "%D %T", gmtime(&send_time.tv_sec));
 
   /* The parts of our packet */
   uint8_t *rt; /* radiotap */
@@ -173,6 +174,7 @@ while (1)
   struct iphdr *ip;
   struct udphdr *udp;
   uint8_t *data;
+  struct timespec *ntime;
   uint8_t *stime;
 
   /* Other useful bits */
@@ -184,9 +186,32 @@ while (1)
   /* PCAP vars */
   char errbuf[PCAP_ERRBUF_SIZE];
   pcap_t *ppcap;
+
+  ppcap = pcap_open_live("mon0", 800, 1, 20, errbuf);
+  
+  if (ppcap == NULL) {
+    printf("Could not open interface mon0 for packet injection: %s", errbuf);
+    return 2;
+  }
+ 
+  printf("\n Let start .... \n");
+system(command4);
+sleep(5);
+system(command5);
+
+
+
+while(1)
+{
+
+  memset(&buff[0], 0, sizeof(buff));
+
+  clock_gettime(CLOCK_REALTIME, &send_time);
+  strftime(buff, sizeof buff, "%D %T", gmtime(&send_time.tv_sec));
+
   
   /* Total buffer size (note the 0 bytes of data and the 4 bytes of FCS */
-  sz = sizeof(u8aRadiotapHeader) + sizeof(struct ieee80211_hdr) + sizeof(ipllc) + sizeof(struct iphdr) + sizeof(struct udphdr) + /*0*/ sizeof(struct timespec) + 100 /* data */ + 4 /* FCS */;
+  sz = sizeof(u8aRadiotapHeader) + sizeof(struct ieee80211_hdr) + sizeof(ipllc) + sizeof(struct iphdr) + sizeof(struct udphdr) + /*0*/ sizeof(uint8_t) + sizeof(struct timespec) + 100 /* data */ + 4 /* FCS */;
   buf = (uint8_t *) malloc(sz);
 
   /* Put our pointers in the right place */
@@ -195,12 +220,19 @@ while (1)
   llc = (uint8_t *) (hdr+1);
   ip = (struct iphdr *) (llc+sizeof(ipllc));
   udp = (struct udphdr *) (ip+1);
+  // packet number
   data = (uint8_t *) (udp+1);
+  // Epoch time
+  ntime = (struct timespec *) (data+1);
+  // Date and Time in string
+  stime = (uint8_t *) (data+1);
 
+  // copy packet number
+  memcpy(data, &packno, sizeof(uint8_t));
   // copy time in data
-  memcpy(data, &send_time, sizeof(send_time));
+  memcpy(ntime, &send_time, sizeof(struct timespec));
   //  string time
-  stime = (struct timespec *) (data+1);
+  //stime = (struct timespec *) (data+1);
   memcpy(stime, buff, 100);
 
   /* The radiotap header has been explained already */
@@ -301,38 +333,51 @@ while (1)
    * Finally, we have the packet and are ready to inject it.
    * First, we open the interface we want to inject on using pcap.
    */
+/*
   ppcap = pcap_open_live("mon0", 800, 1, 20, errbuf);
 
   if (ppcap == NULL) {
     printf("Could not open interface mon0 for packet injection: %s", errbuf);
     return 2;
   }
-
+*/
   /**
    * Then we send the packet and clean up after ourselves
    */
-  system(command4);
+  //system(command4);
   clock_gettime(CLOCK_REALTIME, &start_time);
   if (pcap_sendpacket(ppcap, buf, sz) == 0) {
     clock_gettime(CLOCK_REALTIME, &end_time);
-    packno++;
-    //system(command5);
-    diffInNanos = end_time.tv_nsec - start_time.tv_nsec;
-    strftime(buff, sizeof buff, "%D %T", gmtime(&end_time.tv_sec));
-    printf("Send a packet [%d] at %s.%09ld with %ld ns \n\n",packno, buff, end_time.tv_nsec, diffInNanos);
-    pcap_close(ppcap);
-    system(command5);
+    if ( end_time.tv_nsec >= start_time.tv_nsec && end_time.tv_sec >= start_time.tv_sec)
+    {
+	diffSec = ( end_time.tv_sec - start_time.tv_sec );
+	diffInNanos = ( end_time.tv_nsec - start_time.tv_nsec );
 
-                if ( packno >= 20 )
-                {
-                        return 0;
-                }
+    } else if (start_time.tv_nsec > end_time.tv_nsec && end_time.tv_sec >= start_time.tv_sec) 
+    {
+	diffSec = ( end_time.tv_sec - start_time.tv_sec );
+	diffInNanos = ((BILLION - start_time.tv_nsec ) + end_time.tv_nsec );
+
+    } else {
+	// 1 sec ... somthing wrong
+	diffSec = 1;
+	diffInNanos = 0;
+    }
+    //diffInNanos = end_time.tv_nsec - start_time.tv_nsec;
+    //memset(&buff[0], 0, sizeof(buff));
+    //strftime(buff, sizeof buff, "%D %T", gmtime(&end_time.tv_sec));
+    //printf("\n \n Send a packet [%d] at %s.%09ld with %lld nano sec \n \n",packno, buff, end_time.tv_nsec, diffInNanos);
+    printf("Send a packet [%d] at %ld sec %ld nano sec (with %ld.%09ld sec) \n",packno, end_time.tv_sec, end_time.tv_nsec, diffSec, diffInNanos);
+
+    //pcap_close(ppcap);
+    //system(command5);
 
     //return 0;
   }
   else {
     pcap_perror(ppcap, "Failed to inject packet");
     pcap_close(ppcap);
+    return 1;
   }
 
   /**
@@ -342,7 +387,16 @@ while (1)
   //pcap_close(ppcap);
   if (nDelay)
     usleep(nDelay);
+  free(buf);
+  if ( packno >= 20 )
+  {
+        return 0;
+  }
+  packno++;
 }
+  sleep(5);
+  printf("\n Let finish ....\n");
+  pcap_close(ppcap);
   return 1;
 }
 

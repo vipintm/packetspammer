@@ -1,25 +1,25 @@
 all: packetspammer ainject packetvector packet-generator packet_parser using_filters packet-generator-fastgpio
 
 packet-generator-fastgpio : packet-generator-fastgpio.c
-	${CC} -Wall packet-generator-fastgpio.c -o packet-generator-fastgpio -lpcap
+	${CC} packet-generator-fastgpio.c -o packet-generator-fastgpio -lpcap
 
 using_filters: using_filters.c
 	${CC} -Wall using_filters.c -o using_filters -lpcap
 
 packet_parser: packet_parser.c
-	${CC} -Wall packet_parser.c -o packet_parser -lpcap
+	${CC} packet_parser.c -o packet_parser -lpcap
 
 packet-generator: packet-generator.c 
 	${CC} -Wall packet-generator.c -o packet-generator -lpcap
 
 packetspammer: packetspammer.c
-	 ${CC} -Wall radiotap.c packetspammer.c -o packetspammer -lpcap
+	 ${CC} radiotap.c packetspammer.c -o packetspammer -lpcap
 
 ainject: inject.c
-	 ${CC} -Wall radiotap.c inject.c -o inject -lpcap
+	 ${CC} radiotap.c inject.c -o inject -lpcap
 
 packetvector: packetvector.c vectors.h
-	 ${CC} -Wall radiotap.c packetvector.c -o packetvector -lpcap
+	 ${CC} radiotap.c packetvector.c -o packetvector -lpcap
 
 clean:
 	rm -f packetspammer *~
