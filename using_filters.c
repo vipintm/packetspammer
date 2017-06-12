@@ -155,41 +155,57 @@ int main() {
 		return 2;
 	}
 
-	char timestr[50];
+	char timestr1[20];
+	char timestr2[20];
 	long int rtime;
-	FILE *fp;
-	char *ptr;
-	char *cmd = "ssh root@10.0.1.193 date +%N";
-	errno = 0;
+	long int ltime;
+	FILE *fp1;
+	FILE *fp2;
+	int timefindr = 4;
+	int loop;
+	// Asuming NTP did a sync to second
+	char *cmd1 = "ssh root@10.0.1.193 date +%N";
+	char *cmd2 = "date +%N";
 
 	printf("\n Let get the time sync diff \n");
 
-	memset(&timestr[0], 0, sizeof(timestr));
 
-	if ((fp = popen(cmd, "r")) == NULL) {
-		printf("Error opening pipe!\n");
-		return -1;
-	}
+	for (loop = 1; loop <= yimefindr; loop++) {
 
-	while (fgets(timestr, 50, fp) != NULL) {
-		// Do whatever you want here...
-		printf("OUTPUT: %s", timestr);
-		rtime = atol(timestr);
-/*		rtime = strtoll(timestr, &ptr, 10);
-		if(*ptr != 0 ) {
-			printf("There is ptr error %s", ptr);
+		memset(&timestr1[0], 0, sizeof(timestr1));
+		memset(&timestr2[0], 0, sizeof(timestr2));
+
+		if ((fp1 = popen(cmd1, "r")) == NULL) {
+			printf("Error opening pipe! for 1\n");
+			return -1;
 		}
-		else if ( errno != 0) {
-			printf("There is a error error no %d",errno );
-		} else {
-			printf("The rtime is : %ld",rtime);
-		}*/
-		printf("The rtime is : %ld",rtime);
-	}
 
-	if (pclose(fp)) {
-		printf("Command not found or exited with error status\n");
-		return -1;
+		if ((fp2 = popen(cmd2, "r")) == NULL) {
+			printf("Error opening pipe! for 2\n");
+			return -1;
+		}
+
+		while (fgets(timestr1, 20, fp1) != NULL) {
+			printf("Time OUTPUT remote: %s", timestr1);
+			rtime = atol(timestr1);
+			printf("The rtime is : %ld",rtime);
+		}
+
+		while (fgets(timestr2, 20, fp1) != NULL) {
+			printf("Time OUTPUT: %s", timestr2);
+			ltime = atol(timestr2);
+			printf("The rtime is : %ld",ltime);
+		}
+
+		if (pclose(fp1)) {
+			printf("Command not found or exited with error status 1\n");
+			return -1;
+		}
+
+		if (pclose(fp2)) {
+			printf("Command not found or exited with error status 2\n");
+			return -1;
+		}
 	}
 
 	printf("\nLets start ....\n");
