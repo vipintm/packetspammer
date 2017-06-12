@@ -216,12 +216,12 @@ int main() {
 		//if(tempSr = tempSl)
 
 		// ltime - rtime
-		calTimeDiffNow = ltime - rtime;
+/*		calTimeDiffNow = ltime - rtime;
 		printf("Current diff %ld\n",calTimeDiffNow);
 		if(loop >= 2) {
 			calTimeDiff = ( calTimeDiff + calTimeDiffNow)/2;
 			printf("Current Avrage diff %ld\n",calTimeDiff);
-		}
+		}*/
 		if (pclose(fp1)) {
 			printf("Command not found or exited with error status 1\n");
 			return -1;
