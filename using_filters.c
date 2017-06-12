@@ -167,8 +167,10 @@ int main() {
 	FILE *fp2;
 	int timefindr = 50;
 	int loop;
-	long int calTimeDiff =0;
-	long int calTimeDiffNow = 0;
+	long int calTimeDiffS = 0;
+	long int calTimeDiffNowS = 0;
+	long int calTimeDiffN = 0;
+	long int calTimeDiffNowN = 0;
 	// Asuming NTP did a sync to second
 	char *cmd1 = "ssh root@10.0.1.193 date +%s-%N-";
 	char *cmd2 = "date +%s-%N-";
@@ -213,15 +215,35 @@ int main() {
 			printf("Time OUTPUT local: %ld %ld\n", tempSl,tempNl);
 		}
 
-		//if(tempSr = tempSl)
-
 		// ltime - rtime
-/*		calTimeDiffNow = ltime - rtime;
-		printf("Current diff %ld\n",calTimeDiffNow);
+
+		if (tempNl >= tempNr && tempSl >= tempSr) {
+			calTimeDiffNowS = (tempSl - tempSr);
+			calTimeDiffNowN = (tempNl - tempNr);
+
+		} else if (tempNl < tempNr && tempSl = tempSr) {
+			calTimeDiffNowS = (tempSl - tempSr);
+			calTimeDiffNowN = ((BILLION - tempNl) + tempNr);
+		} else if (tempSl < tempSr) {
+			calTimeDiffNowS = (tempSl - tempSr);
+			if (tempNl < tempNr)
+				calTimeDiffNowN = ((BILLION - tempNl) + tempNr)*-1;
+			else if (tempNl >= tempNr)
+				calTimeDiffNowN = (tempNl - tempNr)*-1;
+		} else {
+			// 1 sec ... somthing wrong
+			calTimeDiffNowS = 1;
+			calTimeDiffNowN = 0;
+		}
+
+
+		printf("Current diff %ld %ld\n",calTimeDiffNowS, calTimeDiffNowN);
 		if(loop >= 2) {
-			calTimeDiff = ( calTimeDiff + calTimeDiffNow)/2;
-			printf("Current Avrage diff %ld\n",calTimeDiff);
-		} */
+			calTimeDiffS = ( calTimeDiffS + calTimeDiffNowS)/2;
+			calTimeDiffN = ( calTimeDiffN + calTimeDiffNowN)/2;
+			printf("Current Avrage diff %ld %ld\n",calTimeDiffS, calTimeDiffN);
+		}
+
 		if (pclose(fp1)) {
 			printf("Command not found or exited with error status 1\n");
 			return -1;
