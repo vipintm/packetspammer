@@ -196,6 +196,7 @@ int main() {
 			printf("Time OUTPUT remote: %s %s\n", timestr1,nano1);
 			tempS = atol(timestr1);
 			tempN = atol(nano1);
+			printf("Time OUTPUT remote: %ld %ld\n", tempS,tempN);
 			rtime = (tempS * BILLION) + tempN;
 			printf("The rtime is : %ld\n",rtime);
 		}
@@ -205,6 +206,7 @@ int main() {
 			printf("Time OUTPUT local: %s %s\n", timestr2,nano2);
 			tempS = atol(timestr2);
 			tempN = atol(nano2);
+			printf("Time OUTPUT local: %ld %ld\n", tempS,tempN);
 			ltime = (tempS * BILLION) + tempN;
 			printf("The ltime is : %ld\n",ltime);
 		}
