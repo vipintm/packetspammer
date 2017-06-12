@@ -191,7 +191,7 @@ int main() {
 			printf("The rtime is : %ld",rtime);
 		}
 
-		while (fgets(timestr2, 20, fp1) != NULL) {
+		while (fgets(timestr2, 20, fp2) != NULL) {
 			printf("Time OUTPUT: %s", timestr2);
 			ltime = atol(timestr2);
 			printf("The rtime is : %ld",ltime);
