@@ -237,8 +237,8 @@ int main() {
 
 		printf("Current diff %ld %ld\n",calTimeDiffNowS, calTimeDiffNowN);
 		if(loop >= 2) {
-			calTimeDiffS = ( calTimeDiffS + calTimeDiffNowS)/2;
-			calTimeDiffN = ( calTimeDiffN + calTimeDiffNowN)/2;
+			calTimeDiffS = (( calTimeDiffS * ((loop -1)/loop)) + ( calTimeDiffNowS/loop));
+			calTimeDiffN = (( calTimeDiffN * ((loop -1)/loop)) + ( calTimeDiffNowN/loop));
 			printf("Current Avrage diff %ld %ld\n",calTimeDiffS, calTimeDiffN);
 		}
 
