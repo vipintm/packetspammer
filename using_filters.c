@@ -161,8 +161,10 @@ int main() {
 	long int ltime;
 	FILE *fp1;
 	FILE *fp2;
-	int timefindr = 4;
+	int timefindr = 10;
 	int loop;
+	long int calTimeDiff =0;
+	long int calTimeDiffNow = 0;
 	// Asuming NTP did a sync to second
 	char *cmd1 = "ssh root@10.0.1.193 date +%N";
 	char *cmd2 = "date +%N";
@@ -186,17 +188,24 @@ int main() {
 		}
 
 		while (fgets(timestr1, 20, fp1) != NULL) {
-			printf("Time OUTPUT remote: %s", timestr1);
+			//printf("Time OUTPUT remote: %s", timestr1);
 			rtime = atol(timestr1);
-			printf("The rtime is : %ld",rtime);
+			printf("The rtime is : %ld\n",rtime);
 		}
 
 		while (fgets(timestr2, 20, fp2) != NULL) {
-			printf("Time OUTPUT: %s", timestr2);
+			//printf("Time OUTPUT: %s", timestr2);
 			ltime = atol(timestr2);
-			printf("The rtime is : %ld",ltime);
+			printf("The ltime is : %ld\n",ltime);
 		}
 
+		// ltime - rtime
+		calTimeDiffNow = ltime - rtime;
+		printf("Current diff %ld\n",calTimeDiffNow);
+		if(loop > 2) {
+			calTimeDiff = ( calTimeDiff + calTimeDiffNow)/2;
+			printf("Current Avrage diff %ld\n",calTimeDiff);
+		}
 		if (pclose(fp1)) {
 			printf("Command not found or exited with error status 1\n");
 			return -1;
