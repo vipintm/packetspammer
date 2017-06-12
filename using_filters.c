@@ -218,7 +218,6 @@ int main() {
 			printf("Got a packet [%d] at %ld sec %ld nano sec "
 					"(with %ld.%ld nano sec) \n", packno, end_time.tv_sec,
 					end_time.tv_nsec, diffSec, diffInNanos);
-			printf("Packt info : %s")
 			//system(command4);
 			//system(command5);
 
