@@ -157,7 +157,7 @@ int main() {
 	char timestr[50];
 	long int rtime;
 	FILE *fp;
-	char *ptr
+	char *ptr;
 	char *cmd = "ssh root@10.0.1.193 date +%s%N";
 
 	printf("\n Let get the time sync diff \n");
