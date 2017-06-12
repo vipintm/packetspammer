@@ -166,8 +166,8 @@ int main() {
 	long int calTimeDiff =0;
 	long int calTimeDiffNow = 0;
 	// Asuming NTP did a sync to second
-	char *cmd1 = "ssh root@10.0.1.193 date +%N";
-	char *cmd2 = "date +%N";
+	char *cmd1 = "ssh root@10.0.1.193 date +%s%N";
+	char *cmd2 = "date +%s%N";
 
 	printf("\n Let get the time sync diff \n");
 
