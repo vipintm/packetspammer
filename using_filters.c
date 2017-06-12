@@ -109,8 +109,8 @@ int main() {
 	uint8_t max_packno = 20;
 	char buff[100];
 
-	/* The parts of our packet */
-	uint8_t *rt; /* radiotap */
+/*	 The parts of our packet
+	uint8_t *rt;  radiotap
 	struct ieee80211_hdr *hdr;
 	uint8_t *llc;
 	struct iphdr *iph;
@@ -119,9 +119,9 @@ int main() {
 	struct timespec *ntime;
 	uint8_t *stime;
 
-	/* Other useful bits */
+	 Other useful bits
 	uint8_t *buf;
-	size_t sz;
+	size_t sz;*/
 
 	// pkt vars
 	char dev[] = "mon0";
@@ -188,11 +188,11 @@ int main() {
 				diffInNanos = 0;
 			}
 
-			/* Total buffer size (note the 0 bytes of data and the 4 bytes of FCS */
+/*			 Total buffer size (note the 0 bytes of data and the 4 bytes of FCS
 			sz = sizeof(u8aRadiotapHeader) + sizeof(struct ieee80211_hdr)
 					+ sizeof(ipllc) + sizeof(struct iphdr)
-					+ sizeof(struct udphdr) + /*0*/sizeof(uint8_t)
-					+ sizeof(struct timespec) + 100 /* data */+ 4 /* FCS */;
+					+ sizeof(struct udphdr) + 0sizeof(uint8_t)
+					+ sizeof(struct timespec) + 100  data + 4  FCS ;
 
 			// String time bufer
 			buf = (uint8_t *) malloc(sz);
@@ -200,7 +200,7 @@ int main() {
 			// let copy the packet
 			 memcpy(buf, packet, sz);
 
-			/* Put our pointers in the right place */
+			 Put our pointers in the right place
 			rt = (uint8_t *) buf;
 			hdr = (struct ieee80211_hdr *) (rt + sizeof(u8aRadiotapHeader));
 			llc = (uint8_t *) (hdr + 1);
@@ -211,7 +211,7 @@ int main() {
 			// Epoch time
 			ntime = (struct timespec *) (data + 1);
 			// Date and Time in string
-			stime = (uint8_t *) (ntime + 1);
+			stime = (uint8_t *) (ntime + 1);*/
 
 			//strftime(buff, sizeof buff, "%D %T", gmtime(&end_time.tv_sec));
 			//printf("Got a packet [%d] at %s.%09ld with %ld ns \n\n",packno, buff,end_time.tv_nsec, diffInNanos);
