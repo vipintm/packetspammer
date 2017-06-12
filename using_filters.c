@@ -174,7 +174,8 @@ int main() {
 	while (fgets(timestr, 50, fp) != NULL) {
 		// Do whatever you want here...
 		printf("OUTPUT: %s", timestr);
-		rtime = strtoll(timestr, &ptr, 10);
+		rtime = atol(timestr);
+/*		rtime = strtoll(timestr, &ptr, 10);
 		if(*ptr != 0 ) {
 			printf("There is ptr error %s", ptr);
 		}
@@ -182,7 +183,8 @@ int main() {
 			printf("There is a error error no %d",errno );
 		} else {
 			printf("The rtime is : %ld",rtime);
-		}
+		}*/
+		printf("The rtime is : %ld",rtime);
 	}
 
 	if (pclose(fp)) {
