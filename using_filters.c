@@ -200,7 +200,7 @@ int main() {
 			tempSr = atol(sec1);
 			nano1 = strtok(sec1, "-");
 			tempNr = atol(nano1);
-			printf("Time OUTPUT remote: %s %s\n", timestr1,sec1);
+			printf("Time OUTPUT remote: %s %s\n", sec1,nano1);
 			printf("Time OUTPUT remote: %ld %ld\n", tempSr,tempNr);
 		}
 
@@ -209,7 +209,7 @@ int main() {
 			tempSl = atol(sec2);
 			nano2 = strtok(sec2, "-");
 			tempNl = atol(nano2);
-			printf("Time OUTPUT local: %s %s\n", timestr2,sec2);
+			printf("Time OUTPUT local: %s %s\n", sec2,nano2);
 			printf("Time OUTPUT local: %ld %ld\n", tempSl,tempNl);
 		}
 
