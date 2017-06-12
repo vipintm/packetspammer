@@ -154,14 +154,30 @@ int main() {
 		return 2;
 	}
 
-	char timestr[30];
+	char timestr[50];
 	long int rtime;
-	char *ptr;
+	FILE *fp;
+	char *ptr
+	char *cmd = "ssh root@10.0.1.193 date +%s%N";
+
 	printf("\n Let get the time sync diff \n");
 
 	memset(&timestr[0], 0, sizeof(timestr));
 
-	timestr=system("ssh root@10.0.1.193 date +%s%N");
+	if ((fp = popen(cmd, "r")) == NULL) {
+		printf("Error opening pipe!\n");
+		return -1;
+	}
+
+	while (fgets(timestr, 50, fp) != NULL) {
+		// Do whatever you want here...
+		printf("OUTPUT: %s", timestr);
+	}
+
+	if (pclose(fp)) {
+		printf("Command not found or exited with error status\n");
+		return -1;
+	}
 
 	rtime = strtol(timestr, &ptr, 10);
 	printf("The rtime is : %ld",rtime);
