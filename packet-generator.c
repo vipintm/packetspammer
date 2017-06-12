@@ -221,7 +221,6 @@ int main(void) {
 		// Date and Time in string
 		stime = (uint8_t *) (ntime + 1);
 
-
 		/* The radiotap header has been explained already */
 		memcpy(rt, u8aRadiotapHeader, sizeof(u8aRadiotapHeader));
 
@@ -291,7 +290,8 @@ int main(void) {
 		ip->ihl = 5; /* header length, number of 32-bit words */
 		ip->version = 4;
 		// https://www.tucny.com/Home/dscp-tos
-		ip->tos = 0xE0;
+		// http://www.cisco.com/c/en/us/products/collateral/switches/catalyst-3750-series-switches/prod_bulletin0900aecd80394844.html
+		ip->tos = 0xb8;
 		ip->id = 0;
 		ip->frag_off = htons(0x4000); /* Don't fragment */
 		ip->ttl = 64;
@@ -326,8 +326,7 @@ int main(void) {
 		// copy packet number
 		if (packno > max_packno) {
 			memcpy(data, &max_packno, sizeof(uint8_t));
-		}
-		else {
+		} else {
 			memcpy(data, &packno, sizeof(uint8_t));
 		}
 
@@ -389,7 +388,7 @@ int main(void) {
 		if (nDelay)
 			usleep(nDelay);
 		free(buf);
-		if (packno >= max_packno+1) {
+		if (packno >= max_packno + 1) {
 			sleep(5);
 			printf("\n Let finish ....\n");
 			pcap_close(ppcap);
