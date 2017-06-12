@@ -197,7 +197,7 @@ int main() {
 
 		while (fgets(timestr1, 20, fp1) != NULL) {
 			sec1 = strtok(timestr1, "-");
-			tempSr = atol(timestr1);
+			tempSr = atol(sec1);
 			nano1 = strtok(sec1, "-");
 			tempNr = atol(nano1);
 			printf("Time OUTPUT remote: %s %s\n", timestr1,sec1);
@@ -206,7 +206,7 @@ int main() {
 
 		while (fgets(timestr2, 20, fp2) != NULL) {
 			sec2 = strtok(timestr2, "-");
-			tempSl = atol(timestr2);
+			tempSl = atol(sec2);
 			nano2 = strtok(sec2, "-");
 			tempNl = atol(nano2);
 			printf("Time OUTPUT local: %s %s\n", timestr2,sec2);
@@ -221,7 +221,7 @@ int main() {
 		if(loop >= 2) {
 			calTimeDiff = ( calTimeDiff + calTimeDiffNow)/2;
 			printf("Current Avrage diff %ld\n",calTimeDiff);
-		}*/
+		} */
 		if (pclose(fp1)) {
 			printf("Command not found or exited with error status 1\n");
 			return -1;
