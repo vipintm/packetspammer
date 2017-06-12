@@ -178,7 +178,7 @@ int main() {
 		if(*ptr != 0 ) {
 			printf("There is ptr error %s", ptr);
 		}
-		if else ( errno != 0) {
+		else if ( errno != 0) {
 			printf("There is a error error no %d",errno );
 		} else {
 			printf("The rtime is : %ld",rtime);
