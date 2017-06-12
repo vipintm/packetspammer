@@ -159,8 +159,10 @@ int main() {
 	char timestr2[20];
 	long int rtime;
 	long int ltime;
-	long int tempS;
-	long int tempN;
+	long int tempSr;
+	long int tempNr;
+	long int tempSl;
+	long int tempNl;
 	FILE *fp1;
 	FILE *fp2;
 	int timefindr = 50;
@@ -168,10 +170,12 @@ int main() {
 	long int calTimeDiff =0;
 	long int calTimeDiffNow = 0;
 	// Asuming NTP did a sync to second
-	char *cmd1 = "ssh root@10.0.1.193 date +%s-%N";
-	char *cmd2 = "date +%s-%N";
+	char *cmd1 = "ssh root@10.0.1.193 date +%s-%N-";
+	char *cmd2 = "date +%s-%N-";
 	char *nano1;
 	char *nano2;
+	char *sec1;
+	char *sec2;
 
 	printf("\n Let get the time sync diff \n");
 
@@ -192,24 +196,24 @@ int main() {
 		}
 
 		while (fgets(timestr1, 20, fp1) != NULL) {
-			nano1 = strtok(timestr1, "-");
+			sec1 = strtok(timestr1, "-");
 			printf("Time OUTPUT remote: %s %s\n", timestr1,nano1);
-			tempS = atol(timestr1);
-			tempN = atol(nano1);
-			printf("Time OUTPUT remote: %ld %ld\n", tempS,tempN);
-			rtime = (tempS * BILLION) + tempN;
-			printf("The rtime is : %ld\n",rtime);
+			tempSr = atol(timestr1);
+			nano1 = strtok(sec1, "-");
+			tempNr = atol(nano1);
+			printf("Time OUTPUT remote: %ld %ld\n", tempSr,tempNr);
 		}
 
 		while (fgets(timestr2, 20, fp2) != NULL) {
-			nano2 = strtok(timestr2, "-");
+			sec2 = strtok(timestr2, "-");
 			printf("Time OUTPUT local: %s %s\n", timestr2,nano2);
-			tempS = atol(timestr2);
-			tempN = atol(nano2);
-			printf("Time OUTPUT local: %ld %ld\n", tempS,tempN);
-			ltime = (tempS * BILLION) + tempN;
-			printf("The ltime is : %ld\n",ltime);
+			tempSl = atol(timestr2);
+			nano2 = strtok(sec2, "-");
+			tempNl = atol(nano2);
+			printf("Time OUTPUT local: %ld %ld\n", tempSl,tempNl);
 		}
+
+		//if(tempSr = tempSl)
 
 		// ltime - rtime
 		calTimeDiffNow = ltime - rtime;
