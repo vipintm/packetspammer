@@ -161,7 +161,7 @@ int main() {
 	long int ltime;
 	FILE *fp1;
 	FILE *fp2;
-	int timefindr = 10;
+	int timefindr = 50;
 	int loop;
 	long int calTimeDiff =0;
 	long int calTimeDiffNow = 0;
@@ -202,7 +202,7 @@ int main() {
 		// ltime - rtime
 		calTimeDiffNow = ltime - rtime;
 		printf("Current diff %ld\n",calTimeDiffNow);
-		if(loop > 2) {
+		if(loop >= 2) {
 			calTimeDiff = ( calTimeDiff + calTimeDiffNow)/2;
 			printf("Current Avrage diff %ld\n",calTimeDiff);
 		}
