@@ -170,7 +170,7 @@ int main() {
 	printf("\n Let get the time sync diff \n");
 
 
-	for (loop = 1; loop <= yimefindr; loop++) {
+	for (loop = 1; loop <= timefindr; loop++) {
 
 		memset(&timestr1[0], 0, sizeof(timestr1));
 		memset(&timestr2[0], 0, sizeof(timestr2));
