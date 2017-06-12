@@ -172,7 +172,7 @@ int main() {
 	while (fgets(timestr, 50, fp) != NULL) {
 		// Do whatever you want here...
 		printf("OUTPUT: %s", timestr);
-		rtime = strtol(timestr, &ptr, 10);
+		rtime = strtoll(timestr, &ptr, 10);
 		printf("The rtime is : %ld",rtime);
 	}
 
