@@ -176,7 +176,7 @@ int main() {
 		printf("OUTPUT: %s", timestr);
 		rtime = strtoll(timestr, &ptr, 10);
 		if(*ptr != 0 ) {
-			printf("There is ptr error %s", *ptr)
+			printf("There is ptr error %s", ptr);
 		}
 		if else ( errno != 0) {
 			printf("There is a error error no %d",errno );
