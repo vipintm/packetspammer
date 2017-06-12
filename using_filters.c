@@ -195,7 +195,7 @@ int main() {
 			return -1;
 		}
 
-		while (fgets(timestr1, 20, fp1) != NULL) {
+		while (fgets(timestr1, 50, fp1) != NULL) {
 			sec1 = strtok(timestr1, "-");
 			tempSr = atol(sec1);
 			nano1 = strtok(NULL, "-");
@@ -204,7 +204,7 @@ int main() {
 			printf("Time OUTPUT remote: %ld %ld\n", tempSr,tempNr);
 		}
 
-		while (fgets(timestr2, 20, fp2) != NULL) {
+		while (fgets(timestr2, 50, fp2) != NULL) {
 			sec2 = strtok(timestr2, "-");
 			tempSl = atol(sec2);
 			nano2 = strtok(NULL, "-");
