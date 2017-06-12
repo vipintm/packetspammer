@@ -168,8 +168,8 @@ int main() {
 	long int calTimeDiff =0;
 	long int calTimeDiffNow = 0;
 	// Asuming NTP did a sync to second
-	char *cmd1 = "ssh root@10.0.1.193 date +%s' '%N";
-	char *cmd2 = "date +%s' '%N";
+	char *cmd1 = "ssh root@10.0.1.193 date +%s-%N";
+	char *cmd2 = "date +%s-%N";
 	char *nano1;
 	char *nano2;
 
@@ -192,8 +192,8 @@ int main() {
 		}
 
 		while (fgets(timestr1, 20, fp1) != NULL) {
-			//printf("Time OUTPUT remote: %s", timestr1);
-			nano1 = strtok(timestr1, " ");
+			nano1 = strtok(timestr1, "-");
+			printf("Time OUTPUT remote: %s %s", timestr1,nano1);
 			tempS = atol(timestr1);
 			tempN = atol(nano1);
 			rtime = (tempS * BILLION) + tempN;
@@ -201,8 +201,8 @@ int main() {
 		}
 
 		while (fgets(timestr2, 20, fp2) != NULL) {
-			//printf("Time OUTPUT: %s", timestr2);
-			nano2 = strtok(timestr2, " ");
+			nano2 = strtok(timestr2, "-");
+			printf("Time OUTPUT local: %s %s", timestr2,nano2);
 			tempS = atol(timestr2);
 			tempN = atol(nano2);
 			ltime = (tempS * BILLION) + tempN;
