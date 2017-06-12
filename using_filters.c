@@ -154,6 +154,18 @@ int main() {
 		return 2;
 	}
 
+	char timestr[30];
+	long int rtime;
+	char *ptr;
+	printf("\n Let get the time sync diff \n");
+
+	memset(&timestr[0], 0, sizeof(timestr));
+
+	timestr=system("ssh root@10.0.1.193 date +%s%N");
+
+	rtime = strtol(timestr, &ptr, 10);
+	printf("The rtime is : %ld",rtime);
+
 	printf("\nLets start ....\n");
 	system(command4);
 	sleep(5);
