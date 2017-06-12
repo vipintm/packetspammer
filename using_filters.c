@@ -107,7 +107,7 @@ int main() {
 	long int diffSec;
 	uint8_t packno = 1;
 	uint8_t max_packno = 20;
-	char buff[100];
+//	char buff[100];
 
 /*	 The parts of our packet
 	uint8_t *rt;  radiotap
@@ -225,7 +225,7 @@ int main() {
 			printf("Lenght  of packet %d\n", pktlength);
 			pktdump(packet, pktlength);
 			//print_packet_info(packet, packet_header);
-			free(buf);
+			//free(buf);
 			if (packno >= max_packno) {
 				sleep(5);
 				printf("\n Let finish ....\n");
