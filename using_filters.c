@@ -172,15 +172,14 @@ int main() {
 	while (fgets(timestr, 50, fp) != NULL) {
 		// Do whatever you want here...
 		printf("OUTPUT: %s", timestr);
+		rtime = strtol(timestr, &ptr, 10);
+		printf("The rtime is : %ld",rtime);
 	}
 
 	if (pclose(fp)) {
 		printf("Command not found or exited with error status\n");
 		return -1;
 	}
-
-	rtime = strtol(timestr, &ptr, 10);
-	printf("The rtime is : %ld",rtime);
 
 	printf("\nLets start ....\n");
 	system(command4);
