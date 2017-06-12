@@ -155,8 +155,8 @@ int main() {
 		return 2;
 	}
 
-	char timestr1[20];
-	char timestr2[20];
+	char timestr1[30];
+	char timestr2[30];
 	long int rtime;
 	long int ltime;
 	long int tempSr;
