@@ -157,8 +157,6 @@ int main() {
 
 	char timestr1[30];
 	char timestr2[30];
-	long int rtime;
-	long int ltime;
 	long int tempSr;
 	long int tempNr;
 	long int tempSl;
@@ -221,8 +219,8 @@ int main() {
 			calTimeDiffNowS = (tempSl - tempSr);
 			calTimeDiffNowN = (tempNl - tempNr);
 
-		} else if (tempNl < tempNr && tempSl = tempSr) {
-			calTimeDiffNowS = (tempSl - tempSr);
+		} else if (tempNl < tempNr && tempSl == tempSr) {
+			calTimeDiffNowS = 0;
 			calTimeDiffNowN = ((BILLION - tempNl) + tempNr);
 		} else if (tempSl < tempSr) {
 			calTimeDiffNowS = (tempSl - tempSr);
