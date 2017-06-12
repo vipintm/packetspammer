@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <errno.h>
 #include <pcap.h>
 #include <time.h>
 #include <string.h>
@@ -159,6 +160,7 @@ int main() {
 	FILE *fp;
 	char *ptr;
 	char *cmd = "ssh root@10.0.1.193 date +%s%N";
+	errno = 0;
 
 	printf("\n Let get the time sync diff \n");
 
@@ -173,7 +175,11 @@ int main() {
 		// Do whatever you want here...
 		printf("OUTPUT: %s", timestr);
 		rtime = strtoll(timestr, &ptr, 10);
-		printf("The rtime is : %ld",rtime);
+		if(*ptr != 0 || errno != 0) {
+			printf("There is a error");
+		} else {
+			printf("The rtime is : %ld",rtime);
+		}
 	}
 
 	if (pclose(fp)) {
