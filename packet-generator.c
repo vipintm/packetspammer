@@ -355,8 +355,7 @@ int main(void) {
 			} else if (start_time.tv_nsec > end_time.tv_nsec
 					&& end_time.tv_sec >= start_time.tv_sec) {
 				diffSec = (end_time.tv_sec - start_time.tv_sec);
-				diffInNanos =
-						((BILLION - start_time.tv_nsec) + end_time.tv_nsec);
+				diffInNanos =((BILLION - start_time.tv_nsec) + end_time.tv_nsec);
 
 			} else {
 				// 1 sec ... somthing wrong

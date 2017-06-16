@@ -286,6 +286,10 @@ int main() {
 		}
 	}
 
+
+	printf("Last Avrage diff %ld %ld and RT %f\n",calTimeDiffS, calTimeDiffN,calTimeRTMS);
+	printf("Last Avrage diff %ld %ld Taken \n",calTimeDiffS, callTimeDiffNorg);
+
 	printf("\nLets start ....\n");
 	system(command4);
 	sleep(5);
