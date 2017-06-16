@@ -171,8 +171,8 @@ int main() {
 	long int calTimeDiffNowS = 0;
 	long int calTimeDiffN = 0;
 	long int calTimeDiffNowN = 0;
-	double calTimeRTNowMS = 0;
-	double calTimeRTMS = 0;
+	float calTimeRTNowMS = 0.0;
+	float calTimeRTMS = 0.0;
 	// Asuming NTP did a sync to second
 	char *cmd1 = "ssh root@10.0.1.193 date +%s-%N-";
 	char *cmd2 = "date +%s-%N-";
@@ -227,7 +227,7 @@ int main() {
 		while (fgets(timestr3, 50, fp3) != NULL) {
 			calTimeRTNowMS = atof(timestr3);
 			printf("Time OUTPUT Round Trip: %s\n", timestr3);
-			printf("Time OUTPUT Round Trip: %lf\n", calTimeRTNowMS);
+			printf("Time OUTPUT Round Trip: %f\n", calTimeRTNowMS);
 		}
 
 		// ltime - rtime
@@ -252,12 +252,16 @@ int main() {
 		}
 
 
-		printf("Current diff %ld %ld and RT %lf\n",calTimeDiffNowS, calTimeDiffNowN, calTimeRTNowMS);
+		printf("Current diff %ld %ld and RT %f\n",calTimeDiffNowS, calTimeDiffNowN, calTimeRTNowMS);
 		if(loop >= 2) {
 			calTimeDiffS = (( calTimeDiffS * ((loop -1)/loop)) + ( calTimeDiffNowS/loop));
 			calTimeDiffN = (( calTimeDiffN * ((loop -1)/loop)) + ( calTimeDiffNowN/loop));
 			calTimeRTMS = (( calTimeRTMS * ((loop -1)/loop)) + ( calTimeRTNowMS/loop));
-			printf("Current Avrage diff %ld %ld and RT %lf\n",calTimeDiffS, calTimeDiffN,calTimeRTMS);
+			printf("Current Avrage diff %ld %ld and RT %f\n",calTimeDiffS, calTimeDiffN,calTimeRTMS);
+		} else {
+			calTimeDiffS = calTimeDiffNowS;
+			calTimeDiffN = calTimeDiffNowN;
+			calTimeRTMS = calTimeRTNowMS;
 		}
 
 		if (pclose(fp1)) {
