@@ -168,7 +168,7 @@ int main() {
 	FILE *fp1;
 	FILE *fp2;
 	FILE *fp3;
-	int timefindr = 3;
+	int timefindr = 20;
 	int loop;
 	long int calTimeDiffS = 0;
 	long int calTimeDiffNowS = 0;
