@@ -84,6 +84,7 @@ void pktdump(const u_char * pu8, int nLength);
 
 //int nDelay = 100000;
 #define BILLION  1000000000L
+#define MSTONANOS 1000000L
 char command1[50];
 char command2[50];
 char command3[50];
@@ -165,7 +166,7 @@ int main() {
 	FILE *fp1;
 	FILE *fp2;
 	FILE *fp3;
-	int timefindr = 50;
+	int timefindr = 3;
 	int loop;
 	long int calTimeDiffS = 0;
 	long int calTimeDiffNowS = 0;
@@ -173,6 +174,7 @@ int main() {
 	long int calTimeDiffNowN = 0;
 	float calTimeRTNowMS = 0.0;
 	float calTimeRTMS = 0.0;
+	long int callTimeDiffNorg = 0;
 	// Asuming NTP did a sync to second
 	char *cmd1 = "ssh root@10.0.1.193 date +%s-%N-";
 	char *cmd2 = "date +%s-%N-";
@@ -264,6 +266,8 @@ int main() {
 			calTimeRTMS = calTimeRTNowMS;
 		}
 
+		callTimeDiffNorg = calTimeDiffN - (calTimeRTMS * MSTONANOS);
+
 		if (pclose(fp1)) {
 			printf("Command not found or exited with error status 1\n");
 			return -1;
@@ -314,6 +318,9 @@ int main() {
 				diffInNanos = 0;
 			}
 
+			diffSecR = end_time.tv_sec - calTimeDiffS;
+			diffInNanosR = end_time.tv_nsec - callTimeDiffNorg;
+
 /*			 Total buffer size (note the 0 bytes of data and the 4 bytes of FCS
 			sz = sizeof(u8aRadiotapHeader) + sizeof(struct ieee80211_hdr)
 					+ sizeof(ipllc) + sizeof(struct iphdr)
@@ -341,9 +348,12 @@ int main() {
 
 			//strftime(buff, sizeof buff, "%D %T", gmtime(&end_time.tv_sec));
 			//printf("Got a packet [%d] at %s.%09ld with %ld ns \n\n",packno, buff,end_time.tv_nsec, diffInNanos);
-			printf("Got a packet [%d] at %ld sec %ld nano sec "
+/*			printf("Got a packet [%d] at %ld sec %ld nano sec "
 					"(with %ld.%ld nano sec) \n", packno, end_time.tv_sec,
-					end_time.tv_nsec, diffSec, diffInNanos);
+					end_time.tv_nsec, diffSec, diffInNanos);*/
+			printf("Got a packet [%d] at %ld sec %ld nano sec "
+					"(with %ld.%ld nano sec) \n", packno, diffSecR,
+					diffInNanosR, diffSec, diffInNanos);
 			//system(command4);
 			//system(command5);
 
