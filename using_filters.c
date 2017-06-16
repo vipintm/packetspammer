@@ -268,7 +268,7 @@ int main() {
 			calTimeRTMS = calTimeRTNowMS;
 		}
 
-		callTimeDiffNorg = calTimeDiffN; // - (calTimeRTMS * MSTONANOS);
+		callTimeDiffNorg = calTimeDiffN - (calTimeRTMS * MSTONANOS);
 
 		if (pclose(fp1)) {
 			printf("Command not found or exited with error status 1\n");
@@ -353,7 +353,10 @@ int main() {
 /*			printf("Got a packet [%d] at %ld sec %ld nano sec "
 					"(with %ld.%ld nano sec) \n", packno, end_time.tv_sec,
 					end_time.tv_nsec, diffSec, diffInNanos);*/
-			printf("Got a packet [%d] at %ld sec %ld nano sec "
+/*			printf("Got a packet [%d] at %ld sec %ld nano sec "
+					"(with %ld.%ld nano sec) \n", packno, diffSecR,
+					diffInNanosR, diffSec, diffInNanos);*/
+			printf("Got a packet [%d] at %ld.%ld sec "
 					"(with %ld.%ld nano sec) \n", packno, diffSecR,
 					diffInNanosR, diffSec, diffInNanos);
 			//system(command4);
