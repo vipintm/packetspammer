@@ -157,21 +157,27 @@ int main() {
 
 	char timestr1[30];
 	char timestr2[30];
+	char timestr3[30];
 	long int tempSr;
 	long int tempNr;
 	long int tempSl;
 	long int tempNl;
+	double roundT;
 	FILE *fp1;
 	FILE *fp2;
+	FILE *fp3;
 	int timefindr = 50;
 	int loop;
 	long int calTimeDiffS = 0;
 	long int calTimeDiffNowS = 0;
 	long int calTimeDiffN = 0;
 	long int calTimeDiffNowN = 0;
+	double calTimeRTNowMS = 0;
+	double calTimeRTNMS = 0;
 	// Asuming NTP did a sync to second
 	char *cmd1 = "ssh root@10.0.1.193 date +%s-%N-";
 	char *cmd2 = "date +%s-%N-";
+	char *cmd3 = "ping -c 1 10.0.1.193 | grep round-trip | cut -d'=' -f2 | cut -d'/' -f2";
 	char *nano1;
 	char *nano2;
 	char *sec1;
@@ -184,6 +190,7 @@ int main() {
 
 		memset(&timestr1[0], 0, sizeof(timestr1));
 		memset(&timestr2[0], 0, sizeof(timestr2));
+		memset(&timestr3[0], 0, sizeof(timestr3));
 
 		if ((fp1 = popen(cmd1, "r")) == NULL) {
 			printf("Error opening pipe! for 1\n");
@@ -192,6 +199,11 @@ int main() {
 
 		if ((fp2 = popen(cmd2, "r")) == NULL) {
 			printf("Error opening pipe! for 2\n");
+			return -1;
+		}
+
+		if ((fp3 = popen(cmd3, "r")) == NULL) {
+			printf("Error opening pipe! for 3\n");
 			return -1;
 		}
 
@@ -211,6 +223,12 @@ int main() {
 			tempNl = atol(nano2);
 			printf("Time OUTPUT local: %s %s\n", sec2,nano2);
 			printf("Time OUTPUT local: %ld %ld\n", tempSl,tempNl);
+		}
+
+		while (fgets(timestr3, 50, fp3) != NULL) {
+			calTimeRTNowMS = atof(timestr3);
+			printf("Time OUTPUT Round Trip: %s \n", timestr3);
+			printf("Time OUTPUT Round Trip: %lf\n", calTimeRTNowMS);
 		}
 
 		// ltime - rtime
@@ -239,7 +257,8 @@ int main() {
 		if(loop >= 2) {
 			calTimeDiffS = (( calTimeDiffS * ((loop -1)/loop)) + ( calTimeDiffNowS/loop));
 			calTimeDiffN = (( calTimeDiffN * ((loop -1)/loop)) + ( calTimeDiffNowN/loop));
-			printf("Current Avrage diff %ld %ld\n",calTimeDiffS, calTimeDiffN);
+			calTimeRTNMS = (( calTimeRTNMS * ((loop -1)/loop)) + ( calTimeRTNowMS/loop));
+			printf("Current Avrage diff %ld %ld and RT %lf\n",calTimeDiffS, calTimeDiffN,calTimeRTNMS);
 		}
 
 		if (pclose(fp1)) {
