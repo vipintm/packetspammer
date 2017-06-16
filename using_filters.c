@@ -109,6 +109,7 @@ int main() {
 	long int diffSec;
 	long int diffInNanosR;
 	long int diffSecR;
+	double diffTime;
 	uint8_t packno = 1;
 	uint8_t max_packno = 20;
 //	char buff[100];
@@ -177,6 +178,10 @@ int main() {
 	float calTimeRTNowMS = 0.0;
 	float calTimeRTMS = 0.0;
 	long int callTimeDiffNorg = 0;
+
+	double calTimeDiffTimeNow = 0.0;
+	double calTimeDiffTime = 0.0;
+
 	// Asuming NTP did a sync to second
 	char *cmd1 = "ssh root@10.0.1.193 date +%s-%N-";
 	char *cmd2 = "date +%s-%N-";
@@ -236,6 +241,9 @@ int main() {
 
 		// rtime - ltime
 
+		calTimeDiffTimeNow = ((tempSr + (tempNr/BILLION)) - (tempSl + (tempNl/BILLION)));
+
+/*
 		if (tempNr >= tempNl && tempSr >= tempSl) {
 			calTimeDiffNowS = (tempSr - tempSl);
 			calTimeDiffNowN = (tempNr - tempNl);
@@ -254,20 +262,31 @@ int main() {
 			calTimeDiffNowS = 1;
 			calTimeDiffNowN = 0;
 		}
-
+*/
 
 		printf("Current diff %ld %ld and RT %f\n",calTimeDiffNowS, calTimeDiffNowN, calTimeRTNowMS);
+				if(loop >= 2) {
+					calTimeDiffTime = (( calTimeDiffTime * ((loop -1)/loop)) + ( calTimeDiffTimeNow/loop));
+					calTimeRTMS = (( calTimeRTMS * ((loop -1)/loop)) + ( calTimeRTNowMS/loop));
+					printf("Current Avrage diff %lf and RT %f\n",calTimeDiffTime,calTimeRTMS);
+				} else {
+					calTimeDiffTime = calTimeDiffTimeNow;
+					calTimeRTMS = calTimeRTNowMS;
+		}
+
+/*		printf("Current diff %ld %ld and RT %f\n",calTimeDiffNowS, calTimeDiffNowN, calTimeRTNowMS);
 		if(loop >= 2) {
 			calTimeDiffS = (( calTimeDiffS * ((loop -1)/loop)) + ( calTimeDiffNowS/loop));
 			calTimeDiffN = (( calTimeDiffN * ((loop -1)/loop)) + ( calTimeDiffNowN/loop));
 			callTimeDiffNorg = (( calTimeDiffN * ((loop -1)/loop)) + (( calTimeDiffNowN - (calTimeRTNowMS * MSTONANOS))/loop));
 			calTimeRTMS = (( calTimeRTMS * ((loop -1)/loop)) + ( calTimeRTNowMS/loop));
-			printf("Current Avrage diff %ld %ld and RT %f\n",calTimeDiffS, calTimeDiffN,calTimeRTMS);
+			printf("Current Avrage diff %ld %ld - %ld and RT %f\n",calTimeDiffS, calTimeDiffN,,calTimeRTMS);
 		} else {
 			calTimeDiffS = calTimeDiffNowS;
 			calTimeDiffN = calTimeDiffNowN;
 			calTimeRTMS = calTimeRTNowMS;
-		}
+		}*/
+
 
 		//callTimeDiffNorg = calTimeDiffN - (calTimeRTMS * MSTONANOS);
 
@@ -287,9 +306,11 @@ int main() {
 		}
 	}
 
-
+/*
 	printf("Last Avrage diff %ld %ld and RT %f\n",calTimeDiffS, calTimeDiffN,calTimeRTMS);
-	printf("Last Avrage diff %ld %ld Taken \n",calTimeDiffS, callTimeDiffNorg);
+	printf("Last Avrage diff %ld %ld Taken \n",calTimeDiffS, callTimeDiffNorg);*/
+
+	printf("Last Avrage diff %lf Taken and %f RT\n",calTimeDiffTime, calTimeRTMS);
 
 	printf("\nLets start ....\n");
 	system(command4);
@@ -325,8 +346,13 @@ int main() {
 				diffInNanos = 0;
 			}
 
+
+			diffTime = (end_time.tv_sec + (end_time.tv_nsec/BILLION)) - calTimeDiffTime ;
+
+/*
 			diffSecR = end_time.tv_sec - calTimeDiffS;
 			diffInNanosR = end_time.tv_nsec - callTimeDiffNorg;
+*/
 
 /*			 Total buffer size (note the 0 bytes of data and the 4 bytes of FCS
 			sz = sizeof(u8aRadiotapHeader) + sizeof(struct ieee80211_hdr)
@@ -361,9 +387,12 @@ int main() {
 /*			printf("Got a packet [%d] at %ld sec %ld nano sec "
 					"(with %ld.%ld nano sec) \n", packno, diffSecR,
 					diffInNanosR, diffSec, diffInNanos);*/
-			printf("Got a packet [%d] at %ld.%ld sec "
+/*			printf("Got a packet [%d] at %ld.%ld sec "
 					"(with %ld.%ld nano sec) \n", packno, diffSecR,
-					diffInNanosR, diffSec, diffInNanos);
+					diffInNanosR, diffSec, diffInNanos);*/
+			printf("Got a packet [%d] at %lf sec "
+					"(with %ld.%ld nano sec) \n", packno, diffTime,
+					diffSec, diffInNanos);
 			//system(command4);
 			//system(command5);
 
