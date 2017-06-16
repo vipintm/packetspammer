@@ -107,6 +107,8 @@ int main() {
 	struct timespec end_time;
 	long int diffInNanos;
 	long int diffSec;
+	long int diffInNanosR;
+	long int diffSecR;
 	uint8_t packno = 1;
 	uint8_t max_packno = 20;
 //	char buff[100];
