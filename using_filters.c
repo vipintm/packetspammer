@@ -260,6 +260,7 @@ int main() {
 		if(loop >= 2) {
 			calTimeDiffS = (( calTimeDiffS * ((loop -1)/loop)) + ( calTimeDiffNowS/loop));
 			calTimeDiffN = (( calTimeDiffN * ((loop -1)/loop)) + ( calTimeDiffNowN/loop));
+			callTimeDiffNorg = (( calTimeDiffN * ((loop -1)/loop)) + (( calTimeDiffNowN - (calTimeRTNowMS * MSTONANOS))/loop));
 			calTimeRTMS = (( calTimeRTMS * ((loop -1)/loop)) + ( calTimeRTNowMS/loop));
 			printf("Current Avrage diff %ld %ld and RT %f\n",calTimeDiffS, calTimeDiffN,calTimeRTMS);
 		} else {
@@ -268,7 +269,7 @@ int main() {
 			calTimeRTMS = calTimeRTNowMS;
 		}
 
-		callTimeDiffNorg = calTimeDiffN - (calTimeRTMS * MSTONANOS);
+		//callTimeDiffNorg = calTimeDiffN - (calTimeRTMS * MSTONANOS);
 
 		if (pclose(fp1)) {
 			printf("Command not found or exited with error status 1\n");
