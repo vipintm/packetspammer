@@ -366,11 +366,12 @@ int main(void) {
 			//memset(&buff[0], 0, sizeof(buff));
 			//strftime(buff, sizeof buff, "%D %T", gmtime(&end_time.tv_sec));
 			//printf("\n \n Send a packet [%d] at %s.%09ld with %lld nano sec \n \n",packno, buff, end_time.tv_nsec, diffInNanos);
-			printf(
-					"Send a packet [%d] at %ld sec %ld nano sec (with %ld.%09ld sec) \n",
+/*			printf("Send a packet [%d] at %ld sec %ld nano sec (with %ld.%09ld sec) \n",
+					packno, end_time.tv_sec, end_time.tv_nsec, diffSec,
+					diffInNanos);*/
+			printf("Send a packet [%d] at %ld.%ld sec (with %ld.%09ld sec) \n",
 					packno, end_time.tv_sec, end_time.tv_nsec, diffSec,
 					diffInNanos);
-
 			system(command5);
 
 			//return 0;
