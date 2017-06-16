@@ -268,7 +268,7 @@ int main() {
 			calTimeRTMS = calTimeRTNowMS;
 		}
 
-		callTimeDiffNorg = calTimeDiffN - (calTimeRTMS * MSTONANOS);
+		callTimeDiffNorg = calTimeDiffN; // - (calTimeRTMS * MSTONANOS);
 
 		if (pclose(fp1)) {
 			printf("Command not found or exited with error status 1\n");
