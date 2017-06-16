@@ -162,7 +162,6 @@ int main() {
 	long int tempNr;
 	long int tempSl;
 	long int tempNl;
-	double roundT;
 	FILE *fp1;
 	FILE *fp2;
 	FILE *fp3;
@@ -173,7 +172,7 @@ int main() {
 	long int calTimeDiffN = 0;
 	long int calTimeDiffNowN = 0;
 	double calTimeRTNowMS = 0;
-	double calTimeRTNMS = 0;
+	double calTimeRTMS = 0;
 	// Asuming NTP did a sync to second
 	char *cmd1 = "ssh root@10.0.1.193 date +%s-%N-";
 	char *cmd2 = "date +%s-%N-";
@@ -257,8 +256,8 @@ int main() {
 		if(loop >= 2) {
 			calTimeDiffS = (( calTimeDiffS * ((loop -1)/loop)) + ( calTimeDiffNowS/loop));
 			calTimeDiffN = (( calTimeDiffN * ((loop -1)/loop)) + ( calTimeDiffNowN/loop));
-			calTimeRTNMS = (( calTimeRTNMS * ((loop -1)/loop)) + ( calTimeRTNowMS/loop));
-			printf("Current Avrage diff %ld %ld and RT %lf\n",calTimeDiffS, calTimeDiffN,calTimeRTNMS);
+			calTimeRTMS = (( calTimeRTMS * ((loop -1)/loop)) + ( calTimeRTNowMS/loop));
+			printf("Current Avrage diff %ld %ld and RT %lf\n",calTimeDiffS, calTimeDiffN,calTimeRTMS);
 		}
 
 		if (pclose(fp1)) {
@@ -268,6 +267,11 @@ int main() {
 
 		if (pclose(fp2)) {
 			printf("Command not found or exited with error status 2\n");
+			return -1;
+		}
+
+		if (pclose(fp3)) {
+			printf("Command not found or exited with error status 3\n");
 			return -1;
 		}
 	}
