@@ -234,21 +234,21 @@ int main() {
 			printf("Time OUTPUT Round Trip: %f\n", calTimeRTNowMS);
 		}
 
-		// ltime - rtime
+		// rtime - ltime
 
-		if (tempNl >= tempNr && tempSl >= tempSr) {
-			calTimeDiffNowS = (tempSl - tempSr);
-			calTimeDiffNowN = (tempNl - tempNr);
+		if (tempNr >= tempNl && tempSr >= tempSl) {
+			calTimeDiffNowS = (tempSr - tempSl);
+			calTimeDiffNowN = (tempNr - tempNl);
 
-		} else if (tempNl < tempNr && tempSl == tempSr) {
+		} else if (tempNr < tempNl && tempSr == tempSl) {
 			calTimeDiffNowS = 0;
-			calTimeDiffNowN = ((BILLION - tempNl) + tempNr);
-		} else if (tempSl < tempSr) {
-			calTimeDiffNowS = (tempSl - tempSr);
-			if (tempNl < tempNr)
-				calTimeDiffNowN = ((BILLION - tempNl) + tempNr)*-1;
-			else if (tempNl >= tempNr)
-				calTimeDiffNowN = (tempNl - tempNr)*-1;
+			calTimeDiffNowN = ((BILLION - tempNr) + tempNl);
+		} else if (tempSr < tempSl) {
+			calTimeDiffNowS = (tempSr - tempSl);
+			if (tempNr < tempNl)
+				calTimeDiffNowN = ((BILLION - tempNr) + tempNl)*-1;
+			else if (tempNr >= tempNl)
+				calTimeDiffNowN = (tempNr - tempNl)*-1;
 		} else {
 			// 1 sec ... somthing wrong
 			calTimeDiffNowS = 1;
