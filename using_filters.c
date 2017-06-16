@@ -266,7 +266,8 @@ int main() {
 
 		printf("Current diff %ld %ld and RT %f\n",calTimeDiffNowS, calTimeDiffNowN, calTimeRTNowMS);
 				if(loop >= 2) {
-					calTimeDiffTime = (( calTimeDiffTime * ((loop -1)/loop)) + ( calTimeDiffTimeNow/loop));
+					//calTimeDiffTime = (( calTimeDiffTime * ((loop -1)/loop)) + ( calTimeDiffTimeNow/loop));
+					calTimeDiffTime = (( calTimeDiffTime * ((loop -1)/loop)) + (( calTimeDiffTimeNow- (calTimeRTNowMS * MSTONANOS))/loop));
 					calTimeRTMS = (( calTimeRTMS * ((loop -1)/loop)) + ( calTimeRTNowMS/loop));
 					printf("Current Avrage diff %lf and RT %f\n",calTimeDiffTime,calTimeRTMS);
 				} else {
