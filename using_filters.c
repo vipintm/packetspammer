@@ -226,7 +226,7 @@ int main() {
 
 		while (fgets(timestr3, 50, fp3) != NULL) {
 			calTimeRTNowMS = atof(timestr3);
-			printf("Time OUTPUT Round Trip: %s \n", timestr3);
+			printf("Time OUTPUT Round Trip: %s\n", timestr3);
 			printf("Time OUTPUT Round Trip: %lf\n", calTimeRTNowMS);
 		}
 
@@ -252,7 +252,7 @@ int main() {
 		}
 
 
-		printf("Current diff %ld %ld\n",calTimeDiffNowS, calTimeDiffNowN);
+		printf("Current diff %ld %ld and RT %lf\n",calTimeDiffNowS, calTimeDiffNowN, calTimeRTNowMS);
 		if(loop >= 2) {
 			calTimeDiffS = (( calTimeDiffS * ((loop -1)/loop)) + ( calTimeDiffNowS/loop));
 			calTimeDiffN = (( calTimeDiffN * ((loop -1)/loop)) + ( calTimeDiffNowN/loop));
